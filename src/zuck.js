@@ -3,6 +3,7 @@
     https://github.com/ramon82/zuck.js
     MIT License
 */
+
 module.exports = ((window) => {
 	/* Utilities */
 	const query = function (qs) {
@@ -295,10 +296,12 @@ module.exports = ((window) => {
 									}" />
                 </span>
                 <span class="info" itemProp="author" itemScope itemType="http://schema.org/Person">
-                  <strong class="name" itemProp="name">${get(
-										itemData,
-										'name'
-									)}</strong>
+                  <strong data-url="${
+										get(itemData, 'url') || '#'
+									}" class="name" itemProp="name">${get(
+						itemData,
+						'name'
+					)}</strong>
                   <span class="time">${get(itemData, 'lastUpdatedAgo')}</span>
                 </span>
               </a>
@@ -356,10 +359,13 @@ module.exports = ((window) => {
                         </span>
 
                         <div class="info">
-                          <strong class="name">${get(
-														storyData,
-														'name'
-													)}</strong>
+                        <a class="venue-link" href="${get(
+													storyData,
+													'url'
+												)}"><strong class="name">${get(
+						storyData,
+						'name'
+					)}</strong></a>
                           <span class="time">${get(storyData, 'timeAgo')}</span>
                         </div>
                       </div>
@@ -713,11 +719,11 @@ module.exports = ((window) => {
 				}
 
 				const storyViewerWrap = document.createElement('div');
+
 				storyViewerWrap.innerHTML = option('template', 'viewerItem')(
 					storyData,
 					currentItem
 				);
-
 				const storyViewer = storyViewerWrap.firstElementChild;
 
 				storyViewer.className = `story-viewer muted ${className} ${
@@ -996,7 +1002,6 @@ module.exports = ((window) => {
 						}
 
 						createStoryViewer(storyData, 'viewing', true);
-
 						const nextItemData = getStoryMorningGlory('next');
 						if (nextItemData) {
 							createStoryViewer(nextItemData, 'next');
@@ -1118,6 +1123,11 @@ module.exports = ((window) => {
 		};
 
 		const modal = ZuckModal();
+		window.onhashchange = function () {
+			if (window.location.hash != `#!${id}`) {
+				modal.close();
+			}
+		};
 
 		/* parse functions */
 		const parseItems = function (story, forceUpdate) {
@@ -1184,25 +1194,25 @@ module.exports = ((window) => {
 			}
 
 			/*
-      REACT
-      if (seen) {
-        story.classList.add('seen');
-      } else {
-        story.classList.remove('seen');
-      }
-      */
+                REACT
+                if (seen) {
+                    story.classList.add('seen');
+                } else {
+                    story.classList.remove('seen');
+                }
+                */
 
 			try {
 				if (!zuck.data[storyId]) {
 					zuck.data[storyId] = {};
 				}
-
 				zuck.data[storyId].id = storyId; // story id
 				zuck.data[storyId].photo = story.getAttribute('data-photo'); // story preview (or user photo)
 				zuck.data[storyId].name = story.querySelector('.name').innerText;
 				zuck.data[storyId].link = story
 					.querySelector('.item-link')
 					.getAttribute('href');
+				zuck.data[storyId].url = story.querySelector('.name').dataset.url;
 				zuck.data[storyId].lastUpdated =
 					story.getAttribute('data-last-updated');
 				zuck.data[storyId].seen = seen;
@@ -1360,6 +1370,7 @@ module.exports = ((window) => {
 
 		/* api */
 		zuck.data = option('stories') || {};
+
 		zuck.internalData = {};
 		zuck.internalData.seenItems = getLocalData('seenItems') || {};
 
@@ -1399,7 +1410,6 @@ module.exports = ((window) => {
 			story.setAttribute('data-id', storyId);
 			story.setAttribute('data-photo', get(data, 'photo'));
 			story.setAttribute('data-last-updated', get(data, 'lastUpdated'));
-
 			parseStory(story);
 
 			if (!storyEl && !option('reactive')) {
@@ -1587,20 +1597,28 @@ module.exports = ((window) => {
 	};
 
 	/* Helpers */
-	ZuckJS.buildTimelineItem = (id, photo, name, link, lastUpdated, items) => {
+	ZuckJS.buildTimelineItem = (
+		id,
+		photo,
+		name,
+		link,
+		lastUpdated,
+		items,
+		url
+	) => {
 		const timelineItem = {
 			id,
 			photo,
 			name,
 			link,
 			lastUpdated,
-			items: []
+			items: [],
+			url
 		};
 
 		each(items, (itemIndex, itemArgs) => {
 			timelineItem.items.push(ZuckJS.buildStoryItem.apply(ZuckJS, itemArgs));
 		});
-
 		return timelineItem;
 	};
 
