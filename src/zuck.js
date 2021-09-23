@@ -281,7 +281,8 @@ module.exports = ((window) => {
 				},
 				onNavigateItem: function (storyId, nextStoryId, callback) {
 					callback();
-				}
+				},
+				onStoryItemLoad: function (itemId, callback) {}
 			},
 			template: {
 				timelineItem(itemData) {
@@ -336,13 +337,13 @@ module.exports = ((window) => {
 						}
 					}
 
-					return `<a ${attributes}>
+					return `<a ${attributes}> 
                     <img loading="auto" src="${get(itemData, 'preview')}" />
                   </a>`;
 				},
 
 				viewerItem(storyData, currentStoryItem) {
-					return `<div class="story-viewer">
+					let item = `<div class="story-viewer">
                     <div class="head">
                       <div class="left">
                         ${
@@ -359,10 +360,9 @@ module.exports = ((window) => {
                         </span>
 
                         <div class="info">
-                        <a class="venue-link" href="${get(
-													storyData,
-													'url'
-												)}"><strong class="name">${get(
+                        <a class="venue-link" href="${
+													get(storyData, 'url') || '#'
+												}"><strong class="name">${get(
 						storyData,
 						'name'
 					)}</strong></a>
@@ -393,6 +393,8 @@ module.exports = ((window) => {
 												: ''
 										}
                   </div>`;
+
+					return item;
 				},
 
 				viewerItemPointer(index, currentIndex, item) {
@@ -426,7 +428,7 @@ module.exports = ((window) => {
 													'language',
 													'unmute'
 												)}</b>`
-												: `<img loading="auto" class="media" src="${get(
+												: `<img loading="auto" class="media image-media" src="${get(
 														item,
 														'src'
 												  )}" ${get(item, 'type')} />
@@ -626,7 +628,10 @@ module.exports = ((window) => {
 
 							playVideoItem(storyViewer, [items[0], items[1]], true);
 						}
-
+						option(
+							'callbacks',
+							'onStoryItemLoad'
+						)(zuck.data[storyId]?.items[zuck.data[storyId]?.currentItem]?.id);
 						option('callbacks', 'onView')(zuck.internalData.currentStory);
 					}
 				}, transitionTime + 50);
@@ -658,7 +663,6 @@ module.exports = ((window) => {
 				slides.className = 'slides';
 				each(storyItems, (i, item) => {
 					item.timeAgo = timeAgo(get(item, 'time'));
-
 					if (currentItem > i) {
 						storyData.items[i].timeAgo = item.timeAgo;
 						storyData.items[i].seen = true;
@@ -676,19 +680,40 @@ module.exports = ((window) => {
 						item
 					);
 				});
-
 				slides.innerHTML = htmlItems;
 
+				const storyViewerWrap = document.createElement('div');
+
+				storyViewerWrap.innerHTML = option('template', 'viewerItem')(
+					storyData,
+					currentItem
+				);
+				const storyViewer = storyViewerWrap.firstElementChild;
+
 				const video = slides.querySelector('video');
-				const addMuted = function (video) {
-					if (video.muted) {
-						storyViewer.classList.add('muted');
-					} else {
-						storyViewer.classList.remove('muted');
-					}
-				};
+				const image = slides.querySelector('img');
+
+				if (image) {
+					storyViewer?.classList?.add('loading');
+					storyViewer.classList.remove('viewing');
+					storyViewer?.classList?.add('paused');
+					storyViewer?.classList?.add('longPress');
+					image.onload = () => {
+						if (image.complete) {
+							storyViewer.classList.remove('loading');
+							storyViewer.classList.remove('paused');
+						}
+					};
+				}
 
 				if (video) {
+					const addMuted = function (video) {
+						if (video.muted) {
+							storyViewer.classList.add('muted');
+						} else {
+							storyViewer.classList.remove('muted');
+						}
+					};
 					video.onwaiting = (e) => {
 						if (video.paused) {
 							storyViewer.classList.add('paused');
@@ -698,7 +723,6 @@ module.exports = ((window) => {
 
 					video.onplay = () => {
 						addMuted(video);
-
 						storyViewer.classList.remove('stopped');
 						storyViewer.classList.remove('paused');
 						storyViewer.classList.remove('loading');
@@ -709,7 +733,6 @@ module.exports = ((window) => {
 						video.oncanplay =
 							() => {
 								addMuted(video);
-
 								storyViewer.classList.remove('loading');
 							};
 
@@ -717,14 +740,6 @@ module.exports = ((window) => {
 						addMuted(video);
 					};
 				}
-
-				const storyViewerWrap = document.createElement('div');
-
-				storyViewerWrap.innerHTML = option('template', 'viewerItem')(
-					storyData,
-					currentItem
-				);
-				const storyViewer = storyViewerWrap.firstElementChild;
 
 				storyViewer.className = `story-viewer muted ${className} ${
 					!forcePlay ? 'stopped' : ''
@@ -1056,7 +1071,10 @@ module.exports = ((window) => {
 
 							tryFullScreen();
 						}
-
+						option(
+							'callbacks',
+							'onStoryItemLoad'
+						)(zuck.data[storyId]?.items[zuck.data[storyId]?.currentItem]?.id);
 						option('callbacks', 'onView')(storyId);
 					};
 
@@ -1078,7 +1096,6 @@ module.exports = ((window) => {
 							saveLocalData('seenItems', zuck.internalData.seenItems);
 							updateStorySeenPosition();
 						}
-
 						const stories = query('#zuck-modal .story-viewer.next');
 						if (!stories) {
 							modal.close();
@@ -1523,9 +1540,9 @@ module.exports = ((window) => {
 					zuck.data[currentStory].currentItem =
 						zuck.data[currentStory].currentItem + directionNumber;
 
+					//
 					playVideoItem(storyViewer, nextItems, event);
 				};
-
 				let callback = option('callbacks', 'onNavigateItem');
 				callback = !callback
 					? option('callbacks', 'onNextItem')
@@ -1535,6 +1552,12 @@ module.exports = ((window) => {
 					currentStory,
 					nextItem.getAttribute('data-story-id'),
 					navigateItemCallback
+				);
+				option(
+					'callbacks',
+					'onStoryItemLoad'
+				)(
+					zuck.data[currentStory].items[zuck.data[currentStory].currentItem].id
 				);
 			} else if (storyViewer) {
 				if (direction !== 'previous') {

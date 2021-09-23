@@ -68,6 +68,11 @@
 				list: currentSkin['params']['list'],
 				cubeEffect: currentSkin['params']['cubeEffect'],
 				localStorage: true,
+				callbacks: {
+					onStoryItemLoad: (id) => {
+						console.log('!!!@@@!!!', id);
+					}
+				},
 				stories: [
 					Zuck.buildTimelineItem(
 						'ramon',
@@ -80,7 +85,7 @@
 								'ramon-1',
 								'photo',
 								3,
-								'https://raw.githubusercontent.com/ramon82/assets/master/zuck.js/stories/1.jpg',
+								'https://unsplash.com/photos/QpmbWy5bwe4/download?force=true',
 								'https://raw.githubusercontent.com/ramon82/assets/master/zuck.js/stories/1.jpg',
 								'',
 								false,
