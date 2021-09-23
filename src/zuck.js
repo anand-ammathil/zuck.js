@@ -282,7 +282,7 @@ module.exports = ((window) => {
 				onNavigateItem: function (storyId, nextStoryId, callback) {
 					callback();
 				},
-				onStoryItemLoad: function (itemId, callback) {}
+				onStoryItemLoad: function (itemId) {}
 			},
 			template: {
 				timelineItem(itemData) {
