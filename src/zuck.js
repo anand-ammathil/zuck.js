@@ -1583,16 +1583,6 @@ module.exports = ((window) => {
 				if (window.location.hash === `#!${id}`) {
 					window.location.hash = '';
 				}
-
-				window.addEventListener(
-					'popstate',
-					(e) => {
-						if (window.location.hash !== `#!${id}`) {
-							window.location.hash = '';
-						}
-					},
-					false
-				);
 			}
 
 			if (!option('reactive')) {
