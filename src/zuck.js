@@ -6,8 +6,16 @@
 
 module.exports = ((window) => {
 	/* Utilities */
+	let gId;
+	let gModal;
 	const query = function (qs) {
 		return document.querySelectorAll(qs)[0];
+	};
+
+	let hChange = () => {
+		if (window.location.hash != `#!${gId}`) {
+			gModal.close();
+		}
 	};
 
 	const get = function (array, what) {
@@ -251,6 +259,7 @@ module.exports = ((window) => {
 
 		/* options */
 		const id = timeline.id;
+		gId = id;
 		const optionsDefault = {
 			rtl: false,
 			skin: 'snapgram',
@@ -267,6 +276,7 @@ module.exports = ((window) => {
 			localStorage: true,
 			callbacks: {
 				onOpen: function (storyId, callback) {
+					window.addEventListener('hashchange', hChange);
 					callback();
 				},
 				onView: function (storyId) {},
@@ -274,6 +284,7 @@ module.exports = ((window) => {
 					callback();
 				},
 				onClose: function (storyId, callback) {
+					window.removeEventListener('hashchange', hChange);
 					callback();
 				},
 				onNextItem: function (storyId, nextStoryId, callback) {
@@ -1140,12 +1151,7 @@ module.exports = ((window) => {
 		};
 
 		const modal = ZuckModal();
-		window.onhashchange = function () {
-			if (window.location.hash != `#!${id}`) {
-				modal.close();
-			}
-		};
-
+		gModal = modal;
 		/* parse functions */
 		const parseItems = function (story, forceUpdate) {
 			const storyId = story.getAttribute('data-id');
