@@ -276,7 +276,7 @@ module.exports = ((window) => {
 			localStorage: true,
 			callbacks: {
 				onOpen: function (storyId, callback) {
-					window.addEventListener('hashchange', hChange);
+					window.addEventListener('popstate', hChange);
 					callback();
 				},
 				onView: function (storyId) {},
@@ -284,7 +284,7 @@ module.exports = ((window) => {
 					callback();
 				},
 				onClose: function (storyId, callback) {
-					window.removeEventListener('hashchange', hChange);
+					window.removeEventListener('popstate', hChange);
 					callback();
 				},
 				onNextItem: function (storyId, nextStoryId, callback) {
@@ -1129,7 +1129,7 @@ module.exports = ((window) => {
 
 					const callback = function () {
 						if (option('backNative')) {
-							window.location.hash = '';
+							window.history.back();
 						}
 
 						fullScreen(modalContainer, true);
@@ -1581,7 +1581,7 @@ module.exports = ((window) => {
 
 			if (option('backNative')) {
 				if (window.location.hash === `#!${id}`) {
-					window.location.hash = '';
+					window.history.back();
 				}
 			}
 
