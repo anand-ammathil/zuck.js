@@ -1129,7 +1129,7 @@ module.exports = ((window) => {
 
 					const callback = function () {
 						if (option('backNative')) {
-							window.history.back();
+							window.location.hash = '';
 						}
 
 						fullScreen(modalContainer, true);
