@@ -1579,12 +1579,6 @@ module.exports = ((window) => {
 				});
 			}
 
-			if (option('backNative')) {
-				if (window.location.hash === `#!${id}`) {
-					window.history.back();
-				}
-			}
-
 			if (!option('reactive')) {
 				const seenItems = getLocalData('seenItems');
 
