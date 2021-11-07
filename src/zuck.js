@@ -301,7 +301,7 @@ module.exports = ((window) => {
             <div class="story ${get(itemData, 'seen') === true ? 'seen' : ''}">
               <a class="item-link" href="${get(itemData, 'link')}">
                 <span class="item-preview">
-                  <img lazy="eager" src="${
+                  <img loading="lazy" src="${
 										option('avatars') || !get(itemData, 'currentPreview')
 											? get(itemData, 'photo')
 											: get(itemData, 'currentPreview')
@@ -349,7 +349,7 @@ module.exports = ((window) => {
 					}
 
 					return `<a ${attributes}> 
-                    <img loading="auto" src="${get(itemData, 'preview')}" />
+                    <img loading="eager" src="${get(itemData, 'preview')}" />
                   </a>`;
 				},
 
@@ -364,7 +364,7 @@ module.exports = ((window) => {
 												}
 
                         <span class="item-preview">
-                          <img lazy="eager" class="profilePhoto" src="${get(
+                          <img loading="lazy" class="profilePhoto" src="${get(
 														storyData,
 														'photo'
 													)}" />
@@ -439,7 +439,7 @@ module.exports = ((window) => {
 													'language',
 													'unmute'
 												)}</b>`
-												: `<img loading="auto" class="media image-media" src="${get(
+												: `<img loading="eager" class="media image-media" src="${get(
 														item,
 														'src'
 												  )}" ${get(item, 'type')} />
